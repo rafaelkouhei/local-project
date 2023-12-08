@@ -26,7 +26,7 @@ catalog_csv = (
     | 'Catalog CSV - Filter empty values' >> beam.Filter(lambda x: x[1] != '')
     | 'Catalog CSV - Convert all columns to string' >> beam.Map(lambda x: [str(i) for i in x])
     | 'Catalog CSV - List to Text' >> beam.Map(lambda x: ';'.join(x))
-    | 'Catalog CSV - Create CSV file' >> WriteToText('catalog', file_name_suffix='.csv', header=catalog_col)
+    # | 'Catalog CSV - Create CSV file' >> WriteToText('catalog', file_name_suffix='.csv', header=catalog_col)
     | 'Catalog CSV - Print' >> beam.Map(print)
 )
 test = 'testing git revert'
