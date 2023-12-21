@@ -27,10 +27,10 @@ catalog_schema = [
     ('brand', pyarrow.string()),
     ('qty', pyarrow.int64()),
     ('opin', pyarrow.string()),
-    ('export_magento2', pyarrow.string()),
+    ('export_magento2', pyarrow.bool_()),
     ('ean', pyarrow.string()),
     ('image', pyarrow.string()),
-    ('amazon_price_sync', pyarrow.string()),
+    ('amazon_price_sync', pyarrow.bool_()),
     ('is_in_stock', pyarrow.string()),
     ('seller', pyarrow.string())]
 
@@ -57,20 +57,26 @@ def seller_id(x):
     except:
         return None
 
+def convert_bool(x):
+    if x == 'Yes':
+        return True
+    else:
+        return False
+
 def transform_catalog(x):
     sku, type, name, sku_seller, asin, markup_amazon, special_price, cost, special_price_amazon, status, visibility, brand, qty, opin, export_magento2, ean, image, amazon_price_sync, is_in_stock = x
-    return sku, type, name, sku_seller, asin, convert_float(markup_amazon), convert_float(special_price), convert_float(cost), convert_float(special_price_amazon), status, visibility, brand, convert_int(qty), opin, export_magento2, ean, image, amazon_price_sync, is_in_stock, seller_id(sku)
+    return sku, type, name, sku_seller, asin, convert_float(markup_amazon), convert_float(special_price), convert_float(cost), convert_float(special_price_amazon), status, visibility, brand, convert_int(qty), opin, convert_bool(export_magento2), ean, image, convert_bool(amazon_price_sync), is_in_stock, seller_id(sku)
 
 catalog_parquet = (
     pipeline
-    | 'Catalog Parquet - Read from Text' >> ReadFromText('/Users/rafaelsumiya/Downloads/export_customers.csv', skip_header_lines=1)
-    | 'Catalog Parquet - Text to List' >> beam.Map(lambda x: re.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", x))
-    | beam.Filter(lambda x: len(x) == 19)
-    | beam.Map(lambda x: [i.replace('"', '') for i in x])
-    | beam.Filter(lambda x: x[1] != '')
-    | beam.Map(transform_catalog)
-    | beam.Map(lambda y, x: dict(zip(x, y)), catalog_dict)
-    | beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/catalog', file_name_suffix='.parquet', schema=pyarrow.schema(catalog_schema))
+    | 'Read from Text' >> ReadFromText('/Users/rafaelsumiya/Downloads/export_customers.csv', skip_header_lines=1)
+    | 'Text to List' >> beam.Map(lambda x: re.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", x))
+    | 'Filter array elements to 19' >> beam.Filter(lambda x: len(x) == 19)
+    | 'Remove double quotes' >> beam.Map(lambda x: [i.replace('"', '') for i in x])
+    | 'Filter SKU that is empty' >> beam.Filter(lambda x: x[1] != '')
+    | 'Tranform columns' >> beam.Map(transform_catalog)
+    | 'Transform to Dictionary' >> beam.Map(lambda y, x: dict(zip(x, y)), catalog_dict)
+    | 'Write to Parquet' >> beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/catalog', file_name_suffix='.parquet', schema=pyarrow.schema(catalog_schema))
     # | 'Catalog Parquet - Print' >> beam.Map(print)
 )
 
