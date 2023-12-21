@@ -75,7 +75,7 @@ def region_format(x):
 def transform_catalog(x):
     sku, type, name, sku_seller, asin, markup_amazon, special_price, cost, special_price_amazon, status, visibility, brand, qty, opin, export_magento2, ean, image, amazon_price_sync, is_in_stock = x
     return sku, type, name, sku_seller, asin, convert_float(markup_amazon), convert_float(special_price), convert_float(cost), convert_float(special_price_amazon), status, visibility, brand, convert_int(qty), opin, export_magento2, ean, image, amazon_price_sync, is_in_stock
-    # return qty
+
 def transform_drop_item(x):
     order_id, order_date, order_status, shipment_id, shipment_date, shipment_status, seller, seller_name, item_sku, item_name, item_price, item_discount, item_cost, marketplace, canal_id, item_qty, item_tax, item_row_total = x
     return convert_float(order_id), parse_datetime(order_date), order_status, shipment_id, parse_datetime(shipment_date), shipment_status, seller, item_sku, convert_float(item_price), convert_float(item_cost), marketplace, canal_id, item_qty, convert_float(item_row_total)
@@ -106,7 +106,7 @@ catalog_parquet = (
     | beam.Filter(lambda x: x[1] != '')
     | beam.Map(transform_catalog)
     | beam.Map(lambda y, x: dict(zip(x, y)), catalog_dict)
-    | beam.io.WriteToParquet('catalog', file_name_suffix='.parquet', schema=pyarrow.schema(catalog_schema))
+    | beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/catalog', file_name_suffix='.parquet', schema=pyarrow.schema(catalog_schema))
     # | 'Catalog Parquet - Print' >> beam.Map(print)
 )
 drop_item = (
