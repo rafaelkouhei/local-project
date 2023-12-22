@@ -63,7 +63,7 @@ drop_item = (
     | 'Length == 18' >> beam.Filter(lambda x: len(x) == 18)
     | 'Tranform columns' >> beam.Map(transform_drop_item)
     | 'Transform to Dictionary' >> beam.Map(lambda y, x: dict(zip(x, y)), drop_item_dict)
-    | 'Create Parquet file' >> beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/dropship_reportItem.csv', file_name_suffix='.parquet', schema=pyarrow.schema(drop_item_schema))
+    | 'Create Parquet file' >> beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/dropship_reportItem', file_name_suffix='.parquet', schema=pyarrow.schema(drop_item_schema))
     # | 'Dropship Item - Print' >> beam.Map(print)
 )
 

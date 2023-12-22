@@ -82,7 +82,7 @@ def transform_drop_item(x):
 
 def transform_tracking_codes(x):
     marketplace, canal_id, order_id, shipment_id, seller, customer, shipping_city, region, order_status, shipment_status, shipment_date, track_date, first_event, event_days, deliv_date, deliv_time, mag2_int, mag2_int_at, track_number = x
-    return marketplace, canal_id, convert_float(order_id), shipment_id, seller_id(seller), region_format(region), order_status, shipment_status, parse_datetime(shipment_date), parse_datetime(track_date), parse_datetime(first_event), event_days, parse_datetime(deliv_date), deliv_time, track_number
+    return marketplace, canal_id, convert_float(order_id), shipment_id, seller_id(seller), region, order_status, shipment_status, parse_datetime(shipment_date), parse_datetime(track_date), parse_datetime(first_event), event_days, parse_datetime(deliv_date), deliv_time, track_number
 
 #PCollections
 catalog_csv = (
@@ -98,15 +98,15 @@ catalog_csv = (
     # # | 'Catalog CSV - Print' >> beam.Map(print)
 )
 catalog_parquet = (
-    pipeline
-    | 'Catalog Parquet - Read from Text' >> ReadFromText('/Users/rafaelsumiya/Downloads/export_customers.csv', skip_header_lines=1)
-    | 'Catalog Parquet - Text to List' >> beam.Map(lambda x: re.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", x))
-    | beam.Filter(lambda x: len(x) == 19)
-    | beam.Map(lambda x: [i.replace('"', '') for i in x])
-    | beam.Filter(lambda x: x[1] != '')
-    | beam.Map(transform_catalog)
-    | beam.Map(lambda y, x: dict(zip(x, y)), catalog_dict)
-    | beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/catalog', file_name_suffix='.parquet', schema=pyarrow.schema(catalog_schema))
+    # pipeline
+    # | 'Catalog Parquet - Read from Text' >> ReadFromText('/Users/rafaelsumiya/Downloads/export_customers.csv', skip_header_lines=1)
+    # | 'Catalog Parquet - Text to List' >> beam.Map(lambda x: re.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", x))
+    # | beam.Filter(lambda x: len(x) == 19)
+    # | beam.Map(lambda x: [i.replace('"', '') for i in x])
+    # | beam.Filter(lambda x: x[1] != '')
+    # | beam.Map(transform_catalog)
+    # | beam.Map(lambda y, x: dict(zip(x, y)), catalog_dict)
+    # | beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/catalog', file_name_suffix='.parquet', schema=pyarrow.schema(catalog_schema))
     # | 'Catalog Parquet - Print' >> beam.Map(print)
 )
 drop_item = (
@@ -122,16 +122,16 @@ drop_item = (
     # # | 'Dropship Item - Print' >> beam.Map(print)
 )
 tracking_codes = (
-#     pipeline
-#     | 'Tracking Codes - Read from text' >> ReadFromText('tracking_codes.csv', skip_header_lines=1)
-#     | 'Tracking Codes - String to List' >> beam.Map(lambda x: re.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", x))
-#     | 'Tracking Codes - Remove Double Quote' >> beam.Map(lambda x: [i.replace('"', '') for i in x])
-#     | 'Tracking Codes - len == 19' >> beam.Filter(lambda x: len(x) == 19)
-#     | 'Tracking Codes - Transform columns' >> beam.Map(transform_tracking_codes)
-#     | 'Tracking Codes - Convert all columns to string' >> beam.Map(lambda x: [str(i) for i in x])
-#     | 'Tracking Codes - list to Text' >> beam.Map(lambda x: ';'.join(x))
-#     # | 'Tracking Codes - Create CSV file' >> WriteToText('tracking_codes', file_name_suffix='.csv', header=tracking_codes_col)
-#     | 'Tracking Codes - Print' >> beam.Map(print)
+    pipeline
+    | 'Tracking Codes - Read from text' >> ReadFromText('/Users/rafaelsumiya/Downloads/tracking_codes.csv', skip_header_lines=1)
+    | 'Tracking Codes - String to List' >> beam.Map(lambda x: re.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", x))
+    | 'Tracking Codes - Remove Double Quote' >> beam.Map(lambda x: [i.replace('"', '') for i in x])
+    | 'Tracking Codes - len == 19' >> beam.Filter(lambda x: len(x) == 19)
+    | 'Tracking Codes - Transform columns' >> beam.Map(transform_tracking_codes)
+    | 'Tracking Codes - Convert all columns to string' >> beam.Map(lambda x: [str(i) for i in x])
+    | 'Tracking Codes - list to Text' >> beam.Map(lambda x: ';'.join(x))
+    | 'Tracking Codes - Create CSV file' >> WriteToText('/Users/rafaelsumiya/Downloads/tracking_codes', file_name_suffix='.csv', header=tracking_codes_col)
+    # | 'Tracking Codes - Print' >> beam.Map(print)
 )
 
 pipeline.run()

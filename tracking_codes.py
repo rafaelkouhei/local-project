@@ -40,12 +40,10 @@ def convert_float(x):
     return y
 
 def convert_int(x):
-    if x != None and x != '':
-        try:
-            y = int(re.sub(r'[^0-9]', '', x))
-        except:
-            y = None
-        return y
+    if x == '':
+        return None
+    else:
+        return int(re.sub(r'[^0-9]', '', x))
 
 def seller_id(x):
     if x is not None and x != '':
@@ -56,13 +54,9 @@ def seller_id(x):
 def parse_datetime(x):
     if x != '':
         x = datetime.strptime(x, '%b %d, %Y %H:%M:%S %p')
+    else:
+        x = None
     return x
-
-def region_format(x):
-    region_dict = {'^SP|^SAO|PAULO|^S.+O$': 'State of Sao Paulo'}
-    x = unicodedata.normalize('NFKD', x.upper()).encode('ascii', 'ignore').decode('ascii')
-    y = region_dict[x]
-    return y
 
 def transform_tracking_codes(x):
     marketplace, canal_id, order_id, shipment_id, seller, customer, shipping_city, region, order_status, shipment_status, shipment_date, track_date, first_event, event_days, deliv_date, deliv_time, mag2_int, mag2_int_at, track_number = x
@@ -77,8 +71,8 @@ tracking_codes = (
     | 'len == 19' >> beam.Filter(lambda x: len(x) == 19)
     | 'Transform columns' >> beam.Map(transform_tracking_codes)
     | 'Transform to Dictionary' >> beam.Map(lambda y, x: dict(zip(x, y)), tracking_codes_dict)
-    | 'Write to Parquet' >> beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/tracking_codes', file_name_suffix='.parquet', schema=pyarrow.schema(tracking_codes_schema))
-    # | 'Tracking Codes - Print' >> beam.Map(print)
+    | 'Create Parquet file' >> beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/tracking_codes', file_name_suffix='.parquet', schema=pyarrow.schema(tracking_codes_schema))
+    | 'Print' >> beam.Map(print)
 )
 
 pipeline.run()
