@@ -12,7 +12,7 @@ pipeline_options = PipelineOptions(argv=None)
 pipeline = beam.Pipeline(options=pipeline_options)
 
 #Schemas
-drop_item_schema = [
+table_schema = [
     ('order_id', pyarrow.string()),
     ('order_date', pyarrow.date32()),
     ('order_status', pyarrow.string()),
@@ -28,7 +28,7 @@ drop_item_schema = [
     ('item_qty', pyarrow.int16()),
     ('item_row_total', pyarrow.float32())]
 
-drop_item_dict = ['order_id', 'order_date', 'order_status', 'shipment_id', 'shipment_date', 'shipment_status', 'seller', 'item_sku', 'item_price', 'item_cost', 'marketplace', 'canal_id', 'item_qty', 'item_row_total']
+table_dict = ['order_id', 'order_date', 'order_status', 'shipment_id', 'shipment_date', 'shipment_status', 'seller', 'item_sku', 'item_price', 'item_cost', 'marketplace', 'canal_id', 'item_qty', 'item_row_total']
 
 #Functions
 def convert_float(x):
@@ -62,8 +62,8 @@ drop_item = (
     | 'Remove double quote' >> beam.Map(lambda x: [i.replace('"', '') for i in x])
     | 'Length == 18' >> beam.Filter(lambda x: len(x) == 18)
     | 'Tranform columns' >> beam.Map(transform_drop_item)
-    | 'Transform to Dictionary' >> beam.Map(lambda y, x: dict(zip(x, y)), drop_item_dict)
-    | 'Create Parquet file' >> beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/dropship_reportItem', file_name_suffix='.parquet', schema=pyarrow.schema(drop_item_schema))
+    | 'Transform to Dictionary' >> beam.Map(lambda y, x: dict(zip(x, y)), table_dict)
+    | 'Create Parquet file' >> beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/dropship_reportItem', file_name_suffix='.parquet', schema=pyarrow.schema(table_schema))
     # | 'Dropship Item - Print' >> beam.Map(print)
 )
 

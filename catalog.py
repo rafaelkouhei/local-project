@@ -12,7 +12,7 @@ pipeline_options = PipelineOptions(argv=None)
 pipeline = beam.Pipeline(options=pipeline_options)
 
 #Schemas
-catalog_schema = [
+table_schema = [
     ('sku', pyarrow.string()),
     ('type', pyarrow.string()),
     ('name', pyarrow.string()),
@@ -34,7 +34,7 @@ catalog_schema = [
     ('is_in_stock', pyarrow.string()),
     ('seller', pyarrow.string())]
 
-catalog_dict = ['sku', 'type', 'name', 'sku_seller', 'asin', 'markup_amazon', 'special_price', 'cost', 'special_price_amazon', 'status', 'visibility', 'brand', 'qty', 'opin', 'export_magento2', 'ean', 'image', 'amazon_price_sync', 'is_in_stock', 'seller']
+table_dict = ['sku', 'type', 'name', 'sku_seller', 'asin', 'markup_amazon', 'special_price', 'cost', 'special_price_amazon', 'status', 'visibility', 'brand', 'qty', 'opin', 'export_magento2', 'ean', 'image', 'amazon_price_sync', 'is_in_stock', 'seller']
 
 #Functions
 def convert_float(x):
@@ -75,8 +75,8 @@ catalog_parquet = (
     | 'Remove double quotes' >> beam.Map(lambda x: [i.replace('"', '') for i in x])
     | 'Filter SKU that is empty' >> beam.Filter(lambda x: x[1] != '')
     | 'Tranform columns' >> beam.Map(transform_catalog)
-    | 'Transform to Dictionary' >> beam.Map(lambda y, x: dict(zip(x, y)), catalog_dict)
-    | 'Write to Parquet' >> beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/catalog', file_name_suffix='.parquet', schema=pyarrow.schema(catalog_schema))
+    | 'Transform to Dictionary' >> beam.Map(lambda y, x: dict(zip(x, y)), table_dict)
+    | 'Write to Parquet' >> beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/catalog', file_name_suffix='.parquet', schema=pyarrow.schema(table_schema))
     # | 'Catalog Parquet - Print' >> beam.Map(print)
 )
 

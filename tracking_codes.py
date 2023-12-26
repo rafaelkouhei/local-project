@@ -12,7 +12,7 @@ pipeline_options = PipelineOptions(argv=None)
 pipeline = beam.Pipeline(options=pipeline_options)
 
 #Schemas
-tracking_codes_schema = [
+table_schema = [
     ('canal', pyarrow.string()),
     ('canal_id', pyarrow.string()),
     ('order_id', pyarrow.string()),
@@ -29,7 +29,7 @@ tracking_codes_schema = [
     ('deliv_time', pyarrow.int16()),
     ('track_number', pyarrow.string())]
 
-tracking_codes_dict = ['canal', 'canal_id', 'order_id', 'shipment_id', 'seller', 'region', 'order_status', 'shipment_status', 'shipment_date', 'track_date', 'first_event', 'event_days', 'deliv_date', 'deliv_time', 'track_number']
+table_dict = ['canal', 'canal_id', 'order_id', 'shipment_id', 'seller', 'region', 'order_status', 'shipment_status', 'shipment_date', 'track_date', 'first_event', 'event_days', 'deliv_date', 'deliv_time', 'track_number']
 
 #Functions
 def convert_float(x):
@@ -70,8 +70,8 @@ tracking_codes = (
     | 'Remove Double Quote' >> beam.Map(lambda x: [i.replace('"', '') for i in x])
     | 'len == 19' >> beam.Filter(lambda x: len(x) == 19)
     | 'Transform columns' >> beam.Map(transform_tracking_codes)
-    | 'Transform to Dictionary' >> beam.Map(lambda y, x: dict(zip(x, y)), tracking_codes_dict)
-    | 'Create Parquet file' >> beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/tracking_codes', file_name_suffix='.parquet', schema=pyarrow.schema(tracking_codes_schema))
+    | 'Transform to Dictionary' >> beam.Map(lambda y, x: dict(zip(x, y)), table_dict)
+    | 'Create Parquet file' >> beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/tracking_codes', file_name_suffix='.parquet', schema=pyarrow.schema(table_schema))
     | 'Print' >> beam.Map(print)
 )
 
