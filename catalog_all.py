@@ -19,7 +19,6 @@ table_schema = [
     ('sku_seller', pyarrow.string()),
     ('asin', pyarrow.string()),
     ('markup_amazon', pyarrow.float64()),
-    ('markup_octoshop', pyarrow.float64()),
     ('special_price', pyarrow.float64()),
     ('cost', pyarrow.float64()),
     ('special_price_amazon', pyarrow.float64()),
@@ -35,7 +34,7 @@ table_schema = [
     ('is_in_stock', pyarrow.string()),
     ('seller', pyarrow.string())]
 
-table_dict = ['sku', 'type', 'name', 'sku_seller', 'asin', 'markup_amazon', 'markup_octoshop', 'special_price', 'cost', 'special_price_amazon', 'status', 'visibility', 'brand', 'qty', 'opin', 'export_magento2', 'ean', 'image', 'amazon_price_sync', 'is_in_stock', 'seller']
+table_dict = ['sku', 'type', 'name', 'sku_seller', 'asin', 'markup_amazon', 'special_price', 'cost', 'special_price_amazon', 'status', 'visibility', 'brand', 'qty', 'opin', 'export_magento2', 'ean', 'image', 'amazon_price_sync', 'is_in_stock', 'seller']
 
 #Functions
 def convert_float(x):
@@ -65,20 +64,20 @@ def convert_bool(x):
         return False
 
 def transform_catalog(x):
-    sku, type, name, sku_seller, asin, markup_amazon, markup_octoshop, special_price, cost, special_price_amazon, status, visibility, brand, qty, opin, export_magento2, ean, image, amazon_price_sync, is_in_stock = x
-    return sku, type, name, sku_seller, asin, convert_float(markup_amazon), convert_float(markup_octoshop), convert_float(special_price), convert_float(cost), convert_float(special_price_amazon), status, visibility, brand, convert_int(qty), opin, convert_bool(export_magento2), ean, image, convert_bool(amazon_price_sync), is_in_stock, seller_id(sku)
+    sku, type, name, sku_seller, asin, markup_amazon, special_price, cost, special_price_amazon, status, visibility, brand, qty, opin, export_magento2, ean, image, amazon_price_sync, is_in_stock = x
+    return sku, type, name, sku_seller, asin, convert_float(markup_amazon), convert_float(special_price), convert_float(cost), convert_float(special_price_amazon), status, visibility, brand, convert_int(qty), opin, convert_bool(export_magento2), ean, image, convert_bool(amazon_price_sync), is_in_stock, seller_id(sku)
 
 catalog_parquet = (
     pipeline
     | 'Read from Text' >> ReadFromText('/Users/rafaelsumiya/Downloads/export_customers.csv', skip_header_lines=1)
     | 'Text to List' >> beam.Map(lambda x: re.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", x))
-    | 'Filter array elements to 19' >> beam.Filter(lambda x: len(x) == 20)
-    | 'Remove double quotes' >> beam.Map(lambda x: [i.replace('"', '') for i in x])
-    | 'Filter SKU that is empty' >> beam.Filter(lambda x: x[1] != '')
-    | 'Tranform columns' >> beam.Map(transform_catalog)
-    | 'Transform to Dictionary' >> beam.Map(lambda y, x: dict(zip(x, y)), table_dict)
-    | 'Write to Parquet' >> beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/catalog', file_name_suffix='.parquet', schema=pyarrow.schema(table_schema))
-    # | 'Catalog Parquet - Print' >> beam.Map(print)
+    # | 'Filter array elements to 19' >> beam.Filter(lambda x: len(x) == 19)
+    # | 'Remove double quotes' >> beam.Map(lambda x: [i.replace('"', '') for i in x])
+    # | 'Filter SKU that is empty' >> beam.Filter(lambda x: x[1] != '')
+    # | 'Tranform columns' >> beam.Map(transform_catalog)
+    # | 'Transform to Dictionary' >> beam.Map(lambda y, x: dict(zip(x, y)), table_dict)
+    # | 'Write to Parquet' >> beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/catalog', file_name_suffix='.parquet', schema=pyarrow.schema(table_schema))
+    | 'Catalog Parquet - Print' >> beam.Map(print)
 )
 
 pipeline.run()
