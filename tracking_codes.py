@@ -1,7 +1,5 @@
 import apache_beam as beam
 from apache_beam.io import ReadFromText
-from apache_beam.io import WriteToText
-from apache_beam.io import WriteToParquet
 import pyarrow
 from apache_beam.options.pipeline_options import PipelineOptions
 from datetime import datetime
@@ -72,7 +70,7 @@ tracking_codes = (
     | 'Transform columns' >> beam.Map(transform_tracking_codes)
     | 'Transform to Dictionary' >> beam.Map(lambda y, x: dict(zip(x, y)), table_dict)
     | 'Create Parquet file' >> beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/tracking_codes', file_name_suffix='.parquet', schema=pyarrow.schema(table_schema))
-    | 'Print' >> beam.Map(print)
+    # | 'Print' >> beam.Map(print)
 )
 
 pipeline.run()

@@ -1,10 +1,7 @@
 import apache_beam as beam
 from apache_beam.io import ReadFromText
-from apache_beam.io import WriteToText
-from apache_beam.io import WriteToParquet
 import pyarrow
 from apache_beam.options.pipeline_options import PipelineOptions
-from datetime import datetime
 import re
 import unicodedata
 
@@ -47,10 +44,9 @@ def convert_float(x):
 
 def convert_int(x):
     try:
-        y = int(re.sub(r'[^0-9]', '', x))
+        return int(re.sub(r'[^0-9]', '', x[0:x.index('.')]))
     except:
-        y = None
-    return y
+        return None
 
 def seller_id(x):
     try:
@@ -78,6 +74,16 @@ catalog_parquet = (
     | 'Tranform columns' >> beam.Map(transform_catalog)
     | 'Transform to Dictionary' >> beam.Map(lambda y, x: dict(zip(x, y)), table_dict)
     | 'Write to Parquet' >> beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/catalog', file_name_suffix='.parquet', schema=pyarrow.schema(table_schema))
+    # | 'Catalog Parquet - Print' >> beam.Map(print)
+
+    # | 'Read from Text' >> ReadFromText('/Users/rafaelsumiya/Downloads/export_customers2.csv', skip_header_lines=1)
+    # | 'Text to List' >> beam.Map(lambda x: re.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", x))
+    # | 'Filter array elements to 19' >> beam.Filter(lambda x: len(x) == 20)
+    # | 'Remove double quotes' >> beam.Map(lambda x: [i.replace('"', '') for i in x])
+    # | 'Filter SKU that is empty' >> beam.Filter(lambda x: x[1] != '')
+    # | 'Tranform columns' >> beam.Map(transform_catalog)
+    # | 'Transform to Dictionary' >> beam.Map(lambda y, x: dict(zip(x, y)), table_dict)
+    # | 'Write to Parquet' >> beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/catalog', file_name_suffix='.parquet', schema=pyarrow.schema(table_schema))
     # | 'Catalog Parquet - Print' >> beam.Map(print)
 )
 
