@@ -1,9 +1,7 @@
 import apache_beam as beam
-import pandas as pd
 from apache_beam.io import ReadFromText
 import pyarrow
 from apache_beam.options.pipeline_options import PipelineOptions
-from datetime import datetime
 import re
 import unicodedata
 
@@ -65,11 +63,20 @@ def convert_bool(x):
 def transform_catalog(x):
     sku, type, name, sku_seller, asin, markup_amazon, markup_octoshop, special_price, cost, special_price_amazon, status, visibility, brand, qty, opin, export_magento2, ean, image, amazon_price_sync, is_in_stock = x
     return sku, type, name, sku_seller, asin, convert_float(markup_amazon), convert_float(markup_octoshop), convert_float(special_price), convert_float(cost), convert_float(special_price_amazon), status, visibility, brand, convert_int(qty), opin, convert_bool(export_magento2), ean, image, convert_bool(amazon_price_sync), is_in_stock, seller_id(sku)
-df = pd.read_excel('/Users/rafaelsumiya/Downloads/sales_shipments.xlsx')
-df = df.to_csv()
-sales_shipments = (
+
+catalog_parquet = (
     pipeline
-    # | 'Read from Text' >> ReadFromText('/Users/rafaelsumiya/Downloads/sales_shipments.xlsx', skip_header_lines=1)
+    | 'Read from Text' >> ReadFromText('/Users/rafaelsumiya/Downloads/export_customers.csv', skip_header_lines=1)
+    | 'Text to List' >> beam.Map(lambda x: re.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", x))
+    | 'Filter array elements to 19' >> beam.Filter(lambda x: len(x) == 20)
+    | 'Remove double quotes' >> beam.Map(lambda x: [i.replace('"', '') for i in x])
+    | 'Filter SKU that is empty' >> beam.Filter(lambda x: x[1] != '')
+    | 'Tranform columns' >> beam.Map(transform_catalog)
+    | 'Transform to Dictionary' >> beam.Map(lambda y, x: dict(zip(x, y)), table_dict)
+    | 'Write to Parquet' >> beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/catalog', file_name_suffix='.parquet', schema=pyarrow.schema(table_schema))
+    # | 'Catalog Parquet - Print' >> beam.Map(print)
+
+    # | 'Read from Text' >> ReadFromText('/Users/rafaelsumiya/Downloads/export_customers2.csv', skip_header_lines=1)
     # | 'Text to List' >> beam.Map(lambda x: re.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", x))
     # | 'Filter array elements to 19' >> beam.Filter(lambda x: len(x) == 20)
     # | 'Remove double quotes' >> beam.Map(lambda x: [i.replace('"', '') for i in x])
@@ -77,7 +84,7 @@ sales_shipments = (
     # | 'Tranform columns' >> beam.Map(transform_catalog)
     # | 'Transform to Dictionary' >> beam.Map(lambda y, x: dict(zip(x, y)), table_dict)
     # | 'Write to Parquet' >> beam.io.WriteToParquet('/Users/rafaelsumiya/Downloads/catalog', file_name_suffix='.parquet', schema=pyarrow.schema(table_schema))
-    | 'Catalog Parquet - Print' >> beam.Map(print)
+    # | 'Catalog Parquet - Print' >> beam.Map(print)
 )
 
 pipeline.run()

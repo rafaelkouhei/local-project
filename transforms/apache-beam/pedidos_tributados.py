@@ -39,7 +39,7 @@ def convert_float(x):
 
 def convert_int(x):
     if x == '':
-        return None
+        return 1
     else:
         return int(re.sub(r'[^0-9]', '', x))
 
