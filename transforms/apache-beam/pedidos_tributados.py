@@ -50,7 +50,7 @@ def seller_id(x):
         return None
 
 def parse_datetime(x):
-    if x != '':
+    if x != '' and x != '#N/A':
         x = datetime.strptime(x, '%d/%m/%Y')
     else:
         x = None
