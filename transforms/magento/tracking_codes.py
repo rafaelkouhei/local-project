@@ -9,6 +9,7 @@ df = pd.read_csv('/Users/rafaelsumiya/Downloads/tracking_codes.csv')
 # Applying transformations and cleansing
 df = df.rename(columns=lambda x: x.lower().replace(' ', '_').replace('.', '_'))
 df = df.astype({'marketplace': str, 'marketplace_id': str, 'order_id': str, 'shipment_id': str, 'vendor': str, 'customer': str, 'shipping_city': str, 'region': str, 'order_status': str, 'shipment_status': str, 'deliv_time': int, 'track_number': str})
+
 df[['shipment_date', 'track_date', 'first_event', 'deliv__date']] = df[['shipment_date', 'track_date', 'first_event', 'deliv__date']].astype(str)
 df[['shipment_date', 'track_date', 'first_event', 'deliv__date']] = df[['shipment_date', 'track_date', 'first_event', 'deliv__date']].map(lambda x: x.replace('nan', ''))
 df[['shipment_date', 'track_date', 'first_event', 'deliv__date']] = df[['shipment_date', 'track_date', 'first_event', 'deliv__date']].map(lambda x: datetime.strptime(x, '%b %d, %Y %H:%M:%S %p') if x != '' else None)
