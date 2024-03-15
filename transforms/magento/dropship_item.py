@@ -22,4 +22,5 @@ df['seller'] = df['seller'].astype(str)
 
 # Loading into Parquet
 df = df.astype({'order_id': str, 'order_status': str, 'shipment_id': str, 'shipment_status': str, 'seller': str, 'item_sku': str, 'item_name': str, 'item_price': float, 'item_discount': float, 'item_cost': float, 'marketplace': str, 'canal_id': str, 'item_qty': int, 'item_tax': float, 'item_row_total': float})
+df = df.replace({'nan': None})
 df.to_parquet('/Users/rafaelsumiya/Downloads/drop_item.parquet')

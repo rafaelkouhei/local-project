@@ -2,7 +2,7 @@ import pandas as pd
 df = pd.read_csv('/Users/rafaelsumiya/Downloads/export_customers.csv', on_bad_lines='skip')
 pd.set_option('display.max_columns', None)
 # print(df.describe())
-df = df.drop(columns=df.columns.difference(['sku', 'sku_seller', 'udropship_vendor', 'status', 'visibility', 'name', 'description', 'descricao_octoshop', 'url_key', 'model', 'export_magento2', 'brand', 'tributo_octo', 'special_price', 'cost', 'ean', 'opin', 'color', 'is_in_stock', 'version', 'customs_english_name', 'customs_value', 'hs_code', 'image', 'meta_title', 'meta_keyword', 'meta_description', 'asin', 'qty']))
+df = df.drop(columns=df.columns.difference(['sku', 'sku_seller', 'udropship_vendor', 'status', 'visibility', 'name', 'description', 'descricao_octoshop', 'url_key', 'model', 'export_magento2', 'brand', 'tributo_octo', 'special_price', 'cost', 'ean', 'opin', 'color', 'is_in_stock', 'version', 'customs_english_name', 'customs_value', 'hs_code', 'image', 'meta_title', 'meta_keyword', 'meta_description', 'asin', 'qty', 'customs_english_name']))
 # print(df.columns.tolist())
 
 df = df[(df['status'] == 'Enabled') | (df['status'] == 'Disabled')]
