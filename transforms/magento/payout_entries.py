@@ -11,5 +11,5 @@ df = df.astype({'entry_id': str, 'vendor_id': str, 'marketplace': str, 'marketpl
 df[['entry_id', 'vendor_id', 'marketplace', 'marketplace_id', 'shipment_increment', 'entry_type', 'entry_message', 'created_at']] = df[['entry_id', 'vendor_id', 'marketplace', 'marketplace_id', 'shipment_increment', 'entry_type', 'entry_message', 'created_at']].map(lambda x: x.replace('nan', ''))
 df['created_at'] = df['created_at'].map(lambda x: datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
 
-# Loading into Parquet
+df = df.replace({'nan': None})
 df.to_parquet('/Users/rafaelsumiya/Downloads/payout_entries.parquet')

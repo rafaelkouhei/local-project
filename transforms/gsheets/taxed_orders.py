@@ -17,4 +17,7 @@ df = df.astype({'tracking_number': str, 'tax_date': str, 'purchase_date': str, '
 df[['purchase_value', 'tax_sixty_percent', 'billed_value', 'declared_value']] = df[['purchase_value', 'tax_sixty_percent', 'billed_value', 'declared_value']].map(lambda x: x / 100)
 df[['tax_date', 'purchase_date']] = df[['tax_date', 'purchase_date']].map(lambda x: datetime.strptime(x, '%d/%m/%Y') if x != 'nan' else None)
 df['shipment'] = df['shipment'].map(lambda x: x.replace('.0', ''))
-df.to_parquet('/Users/rafaelsumiya/Downloads/taxed_orders.parquet')
+df = df.replace({'nan': None})
+df['seller'] = df['seller'].map(lambda x: x.replace('.0', '') if x is not None else x)
+
+df.to_parquet('/Users/rafaelsumiya/Downloads/pedidos_tributados.parquet')
